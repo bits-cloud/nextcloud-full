@@ -1,0 +1,20 @@
+name: build nextcloud-full docker-image
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: build and upload docker-image
+        uses: docker/build-push-action@v1
+        with:
+          repository: evokom/nextcloud-full
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tag_with_ref: true
