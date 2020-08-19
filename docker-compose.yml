@@ -26,15 +26,15 @@ services:
       - ~/docker/nextcloud-postgres/data:/var/lib/postgresql/data
     ports:
       - 6379 # redis
-      - 5432 # postgres
-      - 8000:80 # nextcloud port
+      - 5432:5422 # postgres
+      - 80:80 # nextcloud port
+      - 9980:9980 # collabora port
     networks:
       - default
 
   nextcloud:
     container_name: nextcloud
-    image: nextcloud:19.0.1
-    # build: .
+    build: .
     tty: true
     stdin_open: true
     environment:
@@ -63,3 +63,13 @@ services:
     network_mode: service:postgres
     depends_on:
       - postgres
+
+  collabora:
+    container_name: collabora
+    image: collabora/code:4.2.5.3
+    tty: true
+    stdin_open: true
+    environment:
+      extra_params: --o:ssl.enable=false
+    volumes: []
+    network_mode: service:postgres

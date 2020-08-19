@@ -1,0 +1,143 @@
+apiVersion: v1
+data:
+  NEXTCLOUD_ADMIN_USER: user
+  NEXTCLOUD_ADMIN_PASSWORD: secret
+  NEXTCLOUD_TRUSTED_DOMAINS: localhost
+  POSTGRES_DB: nextcloud
+  POSTGRES_HOST: nextcloud-postgres
+  POSTGRES_USER: nextcloud
+  REDIS_HOST: nextcloud-redis
+  POSTGRES_PASSWORD: secret
+  REDIS_HOST_PASSWORD: secret
+kind: ConfigMap
+metadata:
+  annotations: {}
+  labels:
+    name: nextcloud
+    namespace: default
+  name: nextcloud
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: nextcloud
+    namespace: default
+  name: nextcloud
+  namespace: default
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+  selector:
+    name: nextcloud
+    namespace: default
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: nextcloud
+    namespace: default
+  name: nextcloud
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nextcloud
+      namespace: default
+  template:
+    metadata:
+      labels:
+        name: nextcloud
+        namespace: default
+    spec:
+      containers:
+        - name: nextcloud
+          image: evokom/nextcloud-full:test
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: nextcloud
+                optional: false
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - sh
+          #       - -c
+          #       - curl localhost/status.php
+          #   initialDelaySeconds: 600
+          #   timeoutSeconds: 3
+          # readinessProbe:
+          #   exec:
+          #     command:
+          #       - sh
+          #       - -c
+          #       - curl localhost/status.php
+          #   failureThreshold: 60
+          #   initialDelaySeconds: 600
+          #   periodSeconds: 10
+          #   timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: 1500m
+              memory: 1500Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: nextcloud-data
+---
+volumes:
+  - name: nextcloud-data
+    persistentVolumeClaim:
+      claimName: nextcloud
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  labels:
+    name: nextcloud
+    namespace: default
+  name: nextcloud
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`localhost`)
+      middlewares:
+        - name: https
+          namespace: default
+      services:
+        - name: nextcloud
+          port: 80
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    name: nextcloud
+    namespace: default
+  name: nextcloud
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem

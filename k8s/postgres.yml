@@ -1,0 +1,123 @@
+apiVersion: v1
+data:
+  PGDATA: /var/lib/postgresql/data
+  POSTGRES_USER: nextcloud
+  POSTGRES_PASSWORD: secret
+  POSTGRES_DB: nextcloud
+  POSTGRES_INITDB_ARGS: ''
+kind: ConfigMap
+metadata:
+  annotations: {}
+  labels:
+    name: nextcloud-postgres
+    namespace: default
+  name: nextcloud-postgres
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: nextcloud-postgres
+    namespace: default
+  name: nextcloud-postgres
+  namespace: default
+spec:
+  ports:
+    - name: postgres
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: nextcloud-postgres
+    namespace: default
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: nextcloud-postgres
+    namespace: default
+  name: nextcloud-postgres
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nextcloud-postgres
+      namespace: default
+  template:
+    metadata:
+      labels:
+        name: nextcloud-postgres
+        namespace: default
+    spec:
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: nextcloud-postgres
+                optional: false
+          image: postgres:12
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - /usr/bin/pg_isready -U $POSTGRES_USER -h 127.0.0.1
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          name: postgres
+          ports:
+            - containerPort: 5432
+              name: postgresql
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - /usr/bin/pg_isready -U $POSTGRES_USER -h 127.0.0.1
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: 1500m
+              memory: 1500Mi
+            requests:
+              cpu: 200m
+              memory: 350Mi
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: postgres-data
+              subPath: docker-entrypoint-initdb.d
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+              subPath: data
+            - mountPath: /dev/shm
+              name: dshm
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: nextcloud-postgres
+        - emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
+          name: dshm
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    name: nextcloud-postgres
+    namespace: default
+  name: nextcloud-postgres
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  volumeMode: Filesystem

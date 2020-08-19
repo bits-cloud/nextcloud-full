@@ -51,6 +51,7 @@ COPY supervisord.conf /
 
 ####### CUSTOM SETUP ##########
 
+# install nginx
 RUN apt-get update && \
   apt-get install -y nginx && \
   apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false;
