@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: nextcloud-collabora
+    namespace: default
+  name: nextcloud-collabora
+  namespace: default
+spec:
+  ports:
+    - name: collabora
+      port: 9980
+      protocol: TCP
+      targetPort: collabora
+  selector:
+    name: nextcloud-collabora
+    namespace: default
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: nextcloud-collabora
+    namespace: default
+  name: nextcloud-collabora
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: nextcloud-collabora
+      namespace: default
+  template:
+    metadata:
+      labels:
+        name: nextcloud-collabora
+        namespace: default
+    spec:
+      containers:
+        - name: collabora
+          image: collabora/code:4.2.5.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: collabora
+              containerPort: 9980
+              protocol: TCP
+          env:
+            - name: extra_params
+              value: --o:ssl.enable=false
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  labels:
+    name: nextcloud-collabora
+    namespace: default
+  name: nextcloud-collabora
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - kind: Rule
+      match: PathPrefix(`/collabora`) || PathPrefix(`/loleaflet`) || PathPrefix(`/lool`)
+      priority: 10000
+      middlewares:
+        - name: https
+          namespace: default
+        - name: stripprefix-collabora
+          namespace: default
+      services:
+        - name: nextcloud-collabora
+          port: 9980
