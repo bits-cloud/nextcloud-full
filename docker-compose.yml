@@ -8,7 +8,10 @@ services:
     stdin_open: true
     environment: []
     volumes: []
-    network_mode: service:postgres
+    ports:
+      - 6379:6379 # redis
+    networks:
+      - default
 
   postgres:
     container_name: postgres
@@ -25,10 +28,7 @@ services:
       - ~/docker/nextcloud-postgres/init-db:/docker-entrypoint-initdb.d
       - ~/docker/nextcloud-postgres/data:/var/lib/postgresql/data
     ports:
-      - 6379 # redis
       - 5432:5422 # postgres
-      - 80:80 # nextcloud port
-      - 9980:9980 # collabora port
     networks:
       - default
 
@@ -40,14 +40,14 @@ services:
     environment:
       POSTGRES_DB: nextcloud
       POSTGRES_USER: nextcloud
-      POSTGRES_HOST: localhost
+      POSTGRES_HOST: postgres:5432
       POSTGRES_PASSWORD: secret
       NEXTCLOUD_ADMIN_USER: user
       NEXTCLOUD_ADMIN_PASSWORD: secret
       NEXTCLOUD_TRUSTED_DOMAINS: localhost
-      REDIS_HOST: localhost
+      REDIS_HOST: redis
       REDIS_HOST_PASSWORD: secret
-      # REDIS_HOST_PORT:
+      REDIS_HOST_PORT: 6379
       # SMTP_HOST:
       # SMTP_PORT:
       # SMTP_SECURE:
@@ -60,16 +60,22 @@ services:
       # SMTP_PASSWORD:
     volumes:
       - ~/docker/nextcloud:/var/www/html
-    network_mode: service:postgres
+    ports:
+      - 8000:80 # nextcloud port, listening on localhost:8000
+    networks:
+      - default
     depends_on:
       - postgres
 
-  collabora:
-    container_name: collabora
-    image: collabora/code:4.2.5.3
-    tty: true
-    stdin_open: true
-    environment:
-      extra_params: --o:ssl.enable=false
-    volumes: []
-    network_mode: service:postgres
+  # collabora:
+  #   container_name: collabora
+  #   image: collabora/code:4.2.5.3
+  #   tty: true
+  #   stdin_open: true
+  #   environment:
+  #     extra_params: --o:ssl.enable=false
+  #   volumes: []
+  #   ports:
+  #     - 9980:9980 # collabora port
+  #   networks:
+  #     - default
