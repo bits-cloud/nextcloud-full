@@ -7,6 +7,7 @@
 
 ## Information
 
+- use kubectl port-forward -n kube-system <TRAEFIK-POD> 30000 30002 to acces the cluster
 - on port 30002 you can see the traefik dashboard
 - on port 30000 traefik will listen to incoming requests
 - with **localhost:30000** you can access the nextcloud instance

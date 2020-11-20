@@ -1,5 +1,4 @@
-FROM nextcloud:20.0.1-fpm
-
+FROM nextcloud:20.0.1
 RUN set -ex; \
   \
   apt-get update; \
@@ -9,7 +8,8 @@ RUN set -ex; \
   procps \
   smbclient \
   supervisor \
-  #       libreoffice \
+  libreoffice \
+  nano \
   ; \
   rm -rf /var/lib/apt/lists/*
 
@@ -47,32 +47,27 @@ RUN set -ex; \
   apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
   rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /var/log/supervisord;
+RUN mkdir -p /var/run/supervisord;
+
 COPY supervisord.conf /
 
 ####### CUSTOM SETUP ##########
 
-# install nginx
-RUN apt-get update && \
-  apt-get install -y nginx && \
-  apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false;
+COPY setup.sh /
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY setup-config.sh /
-
-RUN chmod 777 /setup-config.sh && \
-  sed -i "s/max_execution_time = 30/max_execution_time = 300/" /usr/local/etc/php/php.ini-*; \
-  sed -i "s/www-data/root/g" /usr/local/etc/php-fpm.d/www.conf; \
-  sed -i "s/pm.max_children = 5/pm.max_children = 50/g" /usr/local/etc/php-fpm.d/www.conf; \
-  sed -i "s/;pm.max_requests = 500/pm.max_requests = 500/g" /usr/local/etc/php-fpm.d/www.conf; \
-  sed -i "s/= 0/= 9999/g" /entrypoint.sh; \
-  mv /var/spool/cron/crontabs/www-data /var/spool/cron/crontabs/root
+RUN chmod 777 /setup.sh && \
+  sed -i "s/max_execution_time = 30/max_execution_time = 300/" /usr/local/etc/php/php.ini-*; 
 
 ENV IMAP_AUTH_DOMAIN=
 ENV IMAP_AUTH_SERVER=
+ENV IMAP_AUTH_PORT=
+ENV IMAP_AUTH_SSL_MODE=
 
 EXPOSE 80
 ###############################
 
 ENV NEXTCLOUD_UPDATE=1
+
 
 CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]

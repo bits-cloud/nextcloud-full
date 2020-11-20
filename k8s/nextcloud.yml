@@ -59,7 +59,8 @@ spec:
     spec:
       containers:
         - name: nextcloud
-          image: evokom/nextcloud-full:test
+          # image: evokom/nextcloud-full:test
+          image: nextcloud:20.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -97,11 +98,10 @@ spec:
           volumeMounts:
             - mountPath: /var/www/html
               name: nextcloud-data
----
-volumes:
-  - name: nextcloud-data
-    persistentVolumeClaim:
-      claimName: nextcloud
+      volumes:
+        - name: nextcloud-data
+          persistentVolumeClaim:
+            claimName: nextcloud
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute

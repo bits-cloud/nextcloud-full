@@ -1,4 +1,4 @@
-docker image build ./.. -t evokom/nextcloud-full:test
+# docker image build ./.. -t evokom/nextcloud-full:test
 
 helm upgrade --install traefik traefik/traefik -f traefik.values.yml --namespace kube-system
 

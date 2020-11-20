@@ -13,12 +13,9 @@ to your nextcloud image
 
 customizations:
 
-- runs as root (this is useful to run occ commands from kubectl)
 - has php-smb + -imap modules installed
 - php:
   - max_execution_time = 300
-  - pm.max_children = 50
-  - pm.max_requests = 500
 
 ### CUSTOM ENV-VARS:
 
@@ -26,3 +23,7 @@ customizations:
 
 - IMAP_AUTH_DOMAIN: The Domain that is used to authenticate the users - e.g. gmail.com
 - IMAP_AUTH_SERVER: The Server Address for the Mail-Server - e.g. mail.gmail.com
+- IMAP_AUTH_PORT: The Port for the IMAP_AUTH_SERVER
+- IMAP_AUTH_SSL_MODE: the SSL-Mode for the IMAP_AUTH_SERVER. possible values are ssl, tls or null (insecure connection)
+
+  for more information visit https://github.com/nextcloud/user_external#readme
