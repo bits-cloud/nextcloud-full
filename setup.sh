@@ -13,20 +13,11 @@ function executeOCC()
 
 function setupConfig()
 {
-  # IMAP_AUTH_PORT is an INTEGER
-  typeset -i IMAP_AUTH_PORT
-
   CONFIG=/var/www/html/config/config.php
-  echo "CONFIG $CONFIG"
 
   MAIN_DOMAIN=$(echo $NEXTCLOUD_TRUSTED_DOMAINS | cut -d' ' -f1) 
-  echo "MAIN_DOMAIN $MAIN_DOMAIN"
-
   OVERWRITEPROTOCOL_EXISTS=$(cat $CONFIG | grep 'overwriteprotocol')
-  echo "OVERWRITEPROTOCOL_EXISTS $OVERWRITEPROTOCOL_EXISTS"
-
   IMAP_AUTH_EXISTS=$(cat $CONFIG | grep 'OC_User_IMAP') 
-  echo "IMAP_AUTH_EXISTS $IMAP_AUTH_EXISTS"
 
 
   if [ -z "${OVERWRITEPROTOCOL_EXISTS}" ]
