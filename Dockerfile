@@ -1,4 +1,4 @@
-FROM nextcloud:20.0.2
+FROM nextcloud:20.0.3
 RUN set -ex; \
   \
   apt-get update; \
@@ -61,8 +61,8 @@ RUN chmod 777 /setup.sh && \
 
 ENV IMAP_AUTH_DOMAIN=
 ENV IMAP_AUTH_SERVER=
-ENV IMAP_AUTH_PORT=
-ENV IMAP_AUTH_SSL_MODE=
+ENV IMAP_AUTH_PORT=993
+ENV IMAP_AUTH_SSL_MODE=SSL
 
 EXPOSE 80
 ###############################

@@ -6,7 +6,9 @@ function executeOCC()
 {
   runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-indices --no-interaction
   runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-columns --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-primary-keys --no-interaction
   runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:convert-filecache-bigint --no-interaction
+
 
   echo "occ commands executed"
 }
@@ -17,7 +19,7 @@ function setupConfig()
 
   MAIN_DOMAIN=$(echo $NEXTCLOUD_TRUSTED_DOMAINS | cut -d' ' -f1) 
   OVERWRITEPROTOCOL_EXISTS=$(cat $CONFIG | grep 'overwriteprotocol')
-  IMAP_AUTH_EXISTS=$(cat $CONFIG | grep 'OC_User_IMAP') 
+  IMAP_AUTH_EXISTS=$(cat $CONFIG | grep 'user_backends') 
 
 
   if [ -z "${OVERWRITEPROTOCOL_EXISTS}" ]
@@ -29,7 +31,7 @@ function setupConfig()
   if [ -z "${IMAP_AUTH_EXISTS}" ] && [ -n "${IMAP_AUTH_DOMAIN}" ] && [ -n "${IMAP_AUTH_SERVER}" ] && [ -n "${IMAP_AUTH_PORT}" ] && [ -n "${IMAP_AUTH_SSL_MODE}" ]
   then
     # insert after line CONFIG = ...
-    sed -i "/'overwriteprotocol'.*/a \  array ( 0 => array ( 'class' => 'OC_User_IMAP', 'arguments' => array ( 0 => '${IMAP_AUTH_SERVER}', 1 => ${IMAP_AUTH_PORT}, 2 => '${IMAP_AUTH_SSL_MODE}', 3 => '${IMAP_AUTH_DOMAIN}', 4 => true, 5 => false, ), ), )," $CONFIG
+    sed -i "/'overwriteprotocol'.*/a \  'user_backends' => array ( 0 => array ( 'class' => 'OC_User_IMAP', 'arguments' => array ( 0 => getenv('IMAP_AUTH_SERVER'), 1 => (int) getenv('IMAP_AUTH_PORT'), 2 => getenv('IMAP_AUTH_SSL_MODE'), 3 => getenv('IMAP_AUTH_DOMAIN'), 4 => true, 5 => false, ), ), )," $CONFIG
   fi
 
   # always replace overwrite.cli.url with the main-domain
@@ -40,5 +42,5 @@ function setupConfig()
   echo "config commands executed"
 }
 
-executeOCC
 setupConfig
+executeOCC
