@@ -59,10 +59,14 @@ COPY setup.sh /
 RUN chmod 777 /setup.sh && \
   sed -i "s/max_execution_time = 30/max_execution_time = 300/" /usr/local/etc/php/php.ini-*; 
 
-ENV IMAP_AUTH_DOMAIN=
-ENV IMAP_AUTH_SERVER=
+ENV IMAP_AUTH_DOMAIN=""
+ENV IMAP_AUTH_SERVER=""
 ENV IMAP_AUTH_PORT=993
 ENV IMAP_AUTH_SSL_MODE=SSL
+
+ENV PREVIEW_MAX=99999
+
+ENV OVERWIRTE_PROTOCOL=https
 
 EXPOSE 80
 ###############################

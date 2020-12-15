@@ -44,7 +44,7 @@ services:
       POSTGRES_PASSWORD: secret
       NEXTCLOUD_ADMIN_USER: user
       NEXTCLOUD_ADMIN_PASSWORD: secret
-      NEXTCLOUD_TRUSTED_DOMAINS: localhost
+      NEXTCLOUD_TRUSTED_DOMAINS: example.com
       REDIS_HOST: redis
       REDIS_HOST_PASSWORD: secret
       REDIS_HOST_PORT: 6379
@@ -55,9 +55,10 @@ services:
       # SMTP_NAME:
       # MAIL_FROM_ADDRESS:
       # MAIL_DOMAIN:
-      # IMAP_AUTH_DOMAIN:
-      # IMAP_AUTH_SERVER:
+      IMAP_AUTH_DOMAIN: example.com
+      IMAP_AUTH_SERVER: mail.example.com
       # SMTP_PASSWORD:
+      PREVIEW_MAX: '1024'
     volumes:
       - ~/docker/nextcloud:/var/www/html
     ports:

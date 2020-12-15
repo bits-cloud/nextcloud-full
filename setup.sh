@@ -1,46 +1,31 @@
 #!/bin/bash
 
-echo "run setup" 
+echo "set protocol to http or https"
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set overwriteprotocol --value=${OVERWIRTE_PROTOCOL} --no-interaction
 
-function executeOCC()
-{
-  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-indices --no-interaction
-  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-columns --no-interaction
-  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-primary-keys --no-interaction
-  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:convert-filecache-bigint --no-interaction
+echo "set overwrite.cli.url and trusted_domains"
+MAIN_DOMAIN=$(echo $NEXTCLOUD_TRUSTED_DOMAINS | cut -d' ' -f1) 
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set overwrite.cli.url --value=${MAIN_DOMAIN:='localhost'} --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set trusted_domains 1 --value=${MAIN_DOMAIN:='localhost'} --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set trusted_domains 2 --value=www.${MAIN_DOMAIN:='localhost'} --no-interaction
 
+echo "set preview size"
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set preview_max_x --value=${PREVIEW_MAX} --type=integer --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set preview_max_y --value=${PREVIEW_MAX} --type=integer --no-interaction
 
-  echo "occ commands executed"
-}
+echo "set IMAP Auth"
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 class --value=OC_User_IMAP --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 arguments 0 --value=${IMAP_AUTH_SERVER} --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 arguments 1 --value=${IMAP_AUTH_PORT} --type=integer --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 arguments 2 --value=${IMAP_AUTH_SSL_MODE} --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 arguments 3 --value=${IMAP_AUTH_DOMAIN} --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 arguments 4 --value=true --type=boolean --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 arguments 5 --value=false --type=boolean  --no-interaction
 
-function setupConfig()
-{
-  CONFIG=/var/www/html/config/config.php
+echo "fix database"
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-indices --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-columns --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-primary-keys --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:convert-filecache-bigint --no-interaction
 
-  MAIN_DOMAIN=$(echo $NEXTCLOUD_TRUSTED_DOMAINS | cut -d' ' -f1) 
-  OVERWRITEPROTOCOL_EXISTS=$(cat $CONFIG | grep 'overwriteprotocol')
-  IMAP_AUTH_EXISTS=$(cat $CONFIG | grep 'user_backends') 
-
-
-  if [ -z "${OVERWRITEPROTOCOL_EXISTS}" ]
-  then
-    # insert after line CONFIG = ...
-    sed -i "/'overwrite.cli.url'.*/a \  'overwriteprotocol' => 'https'," $CONFIG
-  fi
-
-  if [ -z "${IMAP_AUTH_EXISTS}" ] && [ -n "${IMAP_AUTH_DOMAIN}" ] && [ -n "${IMAP_AUTH_SERVER}" ] && [ -n "${IMAP_AUTH_PORT}" ] && [ -n "${IMAP_AUTH_SSL_MODE}" ]
-  then
-    # insert after line CONFIG = ...
-    sed -i "/'overwriteprotocol'.*/a \  'user_backends' => array ( 0 => array ( 'class' => 'OC_User_IMAP', 'arguments' => array ( 0 => getenv('IMAP_AUTH_SERVER'), 1 => (int) getenv('IMAP_AUTH_PORT'), 2 => getenv('IMAP_AUTH_SSL_MODE'), 3 => getenv('IMAP_AUTH_DOMAIN'), 4 => true, 5 => false, ), ), )," $CONFIG
-  fi
-
-  # always replace overwrite.cli.url with the main-domain
-  sed -i "s/'overwrite.cli.url'.*/'overwrite.cli.url' => '${MAIN_DOMAIN}',/" $CONFIG
-
-  # fix ownership
-  chown www-data:root $CONFIG
-  echo "config commands executed"
-}
-
-setupConfig
-executeOCC
+echo "occ commands executed"
