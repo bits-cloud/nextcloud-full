@@ -25,6 +25,7 @@ customizations:
 ### CUSTOM ENV-VARS:
 
 - **PREVIEW_MAX**: Limits the size of generated files _[optional, default = 99999]_
+- **PREVIEW_ENABLED**: Enabled or disables the preview generation can be _true_ or _false_ _[optional, default = true]_
 
 ---
 
