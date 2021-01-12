@@ -1,4 +1,4 @@
-FROM nextcloud:20.0.3
+FROM nextcloud:20.0.4
 RUN set -ex; \
   \
   apt-get update; \
@@ -10,6 +10,8 @@ RUN set -ex; \
   supervisor \
   libreoffice \
   nano \
+  postgresql-client \
+  mariadb-client \
   ; \
   rm -rf /var/lib/apt/lists/*
 
@@ -50,14 +52,16 @@ RUN set -ex; \
 RUN mkdir -p /var/log/supervisord;
 RUN mkdir -p /var/run/supervisord;
 
-COPY supervisord.conf /
+COPY supervisord.conf /etc
 
 ####### CUSTOM SETUP ##########
 
 COPY setup.sh /
+COPY startup.sh /
 
-RUN chmod 777 /setup.sh && \
-  sed -i "s/max_execution_time = 30/max_execution_time = 300/" /usr/local/etc/php/php.ini-*; 
+RUN chmod 777 /setup.sh; \
+  chmod 777 /startup.sh; \
+  sed -i "s/max_execution_time = .*/max_execution_time = 300/" /usr/local/etc/php/php.ini-*; 
 
 ENV IMAP_AUTH_DOMAIN="" \
   IMAP_AUTH_SERVER="" \
@@ -66,7 +70,11 @@ ENV IMAP_AUTH_DOMAIN="" \
   \
   PREVIEW_MAX=99999 \
   PREVIEW_ENABLED="true" \
-  OVERWIRTE_PROTOCOL=https 
+  OVERWIRTE_PROTOCOL=https \
+  TRASHBIN_RETENTION="auto, 30" \
+  VERSIONS_RETENTION="auto, 90" \
+  UPGRADE_ALL_APPS="true" \
+  INSTALL_APPS=""
 
 EXPOSE 80
 ###############################
@@ -74,4 +82,4 @@ EXPOSE 80
 ENV NEXTCLOUD_UPDATE=1
 
 
-CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]
+CMD ["/startup.sh"]
