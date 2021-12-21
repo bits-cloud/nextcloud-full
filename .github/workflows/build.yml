@@ -1,4 +1,4 @@
-name: build nextcloud-full docker-image
+name: 'build nextcloud-full docker-image'
 
 on:
   push:

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "execute upgrade"
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ upgrade --verbose --no-interaction
+
 echo "set protocol to http or https"
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set overwriteprotocol --value="${OVERWIRTE_PROTOCOL}" --no-interaction
 
