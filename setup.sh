@@ -3,6 +3,28 @@
 echo "execute upgrade"
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ upgrade --verbose --no-interaction
 
+echo "enable redis or APCu as cache"
+if [[ -n "${REDIS_HOST}" ]]; then
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set redis host --value="${REDIS_HOST}" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set redis port --value="${REDIS_HOST_PORT:=6379}" --type="integer" --no-interaction
+  if [[ -n "${REDIS_HOST_PASSWORD}" ]]; then
+    runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set redis password --value="${REDIS_HOST_PASSWORD}" --no-interaction
+  fi  
+
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set memcache.local --value="\OC\Memcache\APCu" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set memcache.distributed --value="\OC\Memcache\Redis" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set memcache.locking --value="\OC\Memcache\Redis" --no-interaction
+  
+else
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set memcache.local --value="\OC\Memcache\APCu" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set memcache.distributed --value="\OC\Memcache\APCu" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set memcache.locking --value="\OC\Memcache\APCu" --no-interaction
+fi
+if [[ -n "${DEFAULT_PHONE_REGION}" ]]; then
+  echo "set default phone region"
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set default_phone_region --value="${DEFAULT_PHONE_REGION}" --no-interaction
+fi
+
 echo "set protocol to http or https"
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set overwriteprotocol --value="${OVERWIRTE_PROTOCOL}" --no-interaction
 

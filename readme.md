@@ -17,15 +17,17 @@ This is an Image that modifies the default **[nextcloud](https://hub.docker.com/
 ### CUSTOM ENV-VARS:
 
 - **PREVIEW_MAX**: Limits the size of generated files  
-  _[optional, default = 99999](https://docs.nextcloud.com/server/19/admin_manual/configuration_server/config_sample_php_parameters.html?highlight=preview%20max#previews)_
+  _[optional, default = 99999](https://docs.nextcloud.com/server/23/admin_manual/configuration_server/config_sample_php_parameters.html?highlight=preview%20max#previews)_
 - **PREVIEW_ENABLED**: Enabled or disables the preview generation can be _true_ or _false_  
-  _[optional, default = true](https://docs.nextcloud.com/server/19/admin_manual/configuration_server/config_sample_php_parameters.html?highlight=preview%20max#previews)_
+  _[optional, default = true](https://docs.nextcloud.com/server/23/admin_manual/configuration_server/config_sample_php_parameters.html?highlight=preview%20max#previews)_
 - **OVERWIRTE_PROTOCOL**: defines the protocol for the server, http or https  
-  _[optional, default = https](https://docs.nextcloud.com/server/19/admin_manual/configuration_server/reverse_proxy_configuration.html?highlight=overwrite%20protocol)_
+  _[optional, default = https](https://docs.nextcloud.com/server/23/admin_manual/configuration_server/reverse_proxy_configuration.html?highlight=overwrite%20protocol)_
 - **TRASHBIN_RETENTION**: If the trash bin app is enabled (default), this setting defines the policy for when files and folders in the trash bin will be permanently deleted.  
-  _[optional, default = "auto, 30"](https://docs.nextcloud.com/server/19/admin_manual/configuration_server/config_sample_php_parameters.html?#deleted-items-trash-bin)_
+  _[optional, default = "auto, 30"](https://docs.nextcloud.com/server/23/admin_manual/configuration_server/config_sample_php_parameters.html?#deleted-items-trash-bin)_
 - **VERSIONS_RETENTION**: If the versions app is enabled (default), this setting defines the policy for when versions will be permanently deleted.  
-  _[optional, default = "auto, 90"](https://docs.nextcloud.com/server/19/admin_manual/configuration_server/config_sample_php_parameters.html?#file-versions)_
+  _[optional, default = "auto, 90"](https://docs.nextcloud.com/server/23/admin_manual/configuration_server/config_sample_php_parameters.html?#file-versions)_
+- **DEFAULT_PHONE_REGION**: This sets the default region for phone numbers on your Nextcloud server, using ISO 3166-1 country codes such as DE for Germany, FR for France, … It is required to allow inserting phone numbers in the user profiles starting without the country code (e.g. +49 for Germany). [Introduced with nextcloud-full:23.0.0]
+  _[optional](https://docs.nextcloud.com/server/23/admin_manual/configuration_server/config_sample_php_parameters.html?highlight=phone%20region)_
 
 ---
 
