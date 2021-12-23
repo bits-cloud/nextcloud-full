@@ -3,6 +3,31 @@
 echo "execute upgrade"
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ upgrade --verbose --no-interaction
 
+
+if [[ -n "${SMTP_HOST}" ]]; then
+  echo "enable nextcloud SMTP"
+
+  SMTP_AUTH='false'
+  if [[ -n "${SMTP_AUTHTYPE}" ]]; then
+    SMTP_AUTH='true'
+  fi
+ 
+ 
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_smtphost --value="${SMTP_HOST}" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_smtpport --value="${SMTP_PORT:=465}" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_smtpmode --value="smtp" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_sendmailmode --value="smtp" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_smtpauth --value="${SMTP_AUTH}" --type=boolean --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_smtpname --value="${SMTP_NAME}" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_smtppassword --value="${SMTP_PASSWORD}" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_from_address --value="${MAIL_FROM_ADDRESS}" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_domain --value="${MAIL_DOMAIN}" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_smtpsecure --value="${SMTP_SECURE}" --no-interaction
+  runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set mail_smtpauthtype --value="${SMTP_AUTHTYPE:=LOGIN}" --no-interaction
+
+fi
+
+
 echo "enable redis or APCu as cache"
 if [[ -n "${REDIS_HOST}" ]]; then
   runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set redis host --value="${REDIS_HOST}" --no-interaction
