@@ -73,7 +73,7 @@ runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:se
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 arguments 3 --value="${IMAP_AUTH_DOMAIN}" --no-interaction
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 arguments 4 --value=true --type=boolean --no-interaction
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 arguments 5 --value=false --type=boolean  --no-interaction
-runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 class --value=OC_User_IMAP --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set user_backends 0 class --value="\OCA\UserExternal\IMAP" --no-interaction
 
 echo "fix database"
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ db:add-missing-indices --no-interaction
