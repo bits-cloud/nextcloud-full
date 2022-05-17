@@ -2,7 +2,8 @@
 
 echo "execute upgrade"
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ upgrade --verbose --no-interaction
-
+echo "disable maintenance mode"
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ maintenance:mode --off
 
 if [[ -n "${SMTP_HOST}" ]]; then
   echo "enable nextcloud SMTP"
