@@ -74,7 +74,9 @@ ENV IMAP_AUTH_DOMAIN="" \
   TRASHBIN_RETENTION="auto, 30" \
   VERSIONS_RETENTION="auto, 90" \
   UPGRADE_ALL_APPS="true" \
-  INSTALL_APPS=""
+  INSTALL_APPS="" \
+  \
+  DATA_DIRECTORY="/var/www/html/data"
 
 EXPOSE 80
 ###############################

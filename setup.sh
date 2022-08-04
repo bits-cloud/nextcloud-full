@@ -86,6 +86,10 @@ echo "set retention"
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set trashbin_retention_obligation --value="${TRASHBIN_RETENTION}" --no-interaction
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set versions_retention_obligation --value="${VERSIONS_RETENTION}" --no-interaction
 
+# if datadirectory is not set, there will sometimes pop up an error with "202 permission denied is_dir"
+echo "set datadirectory"
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set datadirectory --value="${DATA_DIRECTORY:='/var/www/html/data'}" --no-interaction
+
 echo "installing applications user_external"
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ app:install user_external --no-interaction
 
