@@ -56,7 +56,7 @@ runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:se
 
 echo "set overwrite.cli.url and trusted_domains"
 MAIN_DOMAIN=$(echo $NEXTCLOUD_TRUSTED_DOMAINS | cut -d' ' -f1) 
-runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set overwrite.cli.url --value="${MAIN_DOMAIN:='localhost'}" --no-interaction
+runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set overwrite.cli.url --value="${OVERWIRTE_PROTOCOL}://${MAIN_DOMAIN:='localhost'}" --no-interaction
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set trusted_domains 1 --value="${MAIN_DOMAIN:='localhost'}" --no-interaction
 runuser --user www-data -- /usr/local/bin/php /var/www/html/occ config:system:set trusted_domains 2 --value="www.${MAIN_DOMAIN:='localhost'}" --no-interaction
 

@@ -16,8 +16,8 @@ jobs:
           docker login ${DOCKER_REGISTRY} --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
           docker image pull ${DOCKER_REGISTRY}/bits-cloud/nextcloud:latest
           docker build -t ${DOCKER_REGISTRY}/bits-cloud/nextcloud:latest .
-          docker image tag ${DOCKER_REGISTRY}/bits-cloud/nextcloud:latest ${DOCKER_REGISTRY}/bits-cloud/nextcloud:${{ github.run_number }}
-          docker image push ${DOCKER_REGISTRY}/bits-cloud/nextcloud:${{ github.run_number }}
+          docker image tag ${DOCKER_REGISTRY}/bits-cloud/nextcloud:latest ${DOCKER_REGISTRY}/bits-cloud/nextcloud:${{ github.ref_name }}
+          docker image push ${DOCKER_REGISTRY}/bits-cloud/nextcloud:${{ github.ref_name }}
           docker image push ${DOCKER_REGISTRY}/bits-cloud/nextcloud:latest
         env:
           DOCKER_REGISTRY: git.bits-cloud.de
