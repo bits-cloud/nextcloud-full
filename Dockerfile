@@ -1,4 +1,4 @@
-FROM nextcloud:23.0.0
+FROM nextcloud:23.0.10
 RUN set -ex; \
   \
   apt-get update; \

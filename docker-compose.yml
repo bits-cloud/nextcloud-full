@@ -2,7 +2,7 @@ version: '3.8'
 services:
   redis:
     container_name: redis
-    image: redis:6.0
+    image: redis:latest
     command: redis-server --requirepass secret
     tty: true
     stdin_open: true
@@ -13,40 +13,40 @@ services:
     networks:
       - default
 
-  # mariadb:
-  #   container_name: nc-mariadb
-  #   image: mariadb:latest
-  #   tty: true
-  #   stdin_open: true
-  #   command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
-  #   volumes:
-  #     - ~/docker/nextcloud-mariadb:/var/lib/mysql
-  #   environment:
-  #     - MYSQL_ROOT_PASSWORD=secret
-  #     - MYSQL_PASSWORD=secret
-  #     - MYSQL_DATABASE=nextcloud
-  #     - MYSQL_USER=nextcloud
-  #   ports:
-  #     - 3306:3306 # mariadb
-  #   networks:
-  #     - default
-
-  postgres:
-    container_name: nc-postgres
-    image: evokom/postgres:13.0.0
+  mariadb:
+    container_name: nc-mariadb
+    image: mariadb:latest
     tty: true
     stdin_open: true
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    # volumes:
+    #   - ~/docker/nextcloud-mariadb:/var/lib/mysql
     environment:
-      POSTGRES_USER: nextcloud
-      POSTGRES_DB: nextcloud
-      POSTGRES_PASSWORD: secret
-    volumes:
-      - ~/docker/nextcloud-postgres/backup:/backup
-      - ~/docker/nextcloud-postgres/data:/postgres
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_PASSWORD=secret
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
     ports:
-      - 5432:5422 # postgres
+      - 3306:3306 # mariadb
     networks:
       - default
+
+  # postgres:
+  #   container_name: nc-postgres
+  #   image: evokom/postgres:13.0.0
+  #   tty: true
+  #   stdin_open: true
+  #   environment:
+  #     POSTGRES_USER: nextcloud
+  #     POSTGRES_DB: nextcloud
+  #     POSTGRES_PASSWORD: secret
+  #   volumes:
+  #     - ~/docker/nextcloud-postgres/backup:/backup
+  #     - ~/docker/nextcloud-postgres/data:/postgres
+  #   ports:
+  #     - 5432:5422 # postgres
+  #   networks:
+  #     - default
 
   nextcloud:
     container_name: nextcloud
@@ -54,14 +54,14 @@ services:
     tty: true
     stdin_open: true
     environment:
-      POSTGRES_DB: nextcloud
-      POSTGRES_USER: nextcloud
-      POSTGRES_HOST: postgres:5432
-      POSTGRES_PASSWORD: secret
-      # MYSQL_HOST: mariadb
-      # MYSQL_PASSWORD: secret
-      # MYSQL_DATABASE: nextcloud
-      # MYSQL_USER: nextcloud
+      # POSTGRES_DB: nextcloud
+      # POSTGRES_USER: nextcloud
+      # POSTGRES_HOST: nc-postgres:5432
+      # POSTGRES_PASSWORD: secret
+      MYSQL_HOST: nc-mariadb:3306
+      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
       NEXTCLOUD_ADMIN_USER: user
       NEXTCLOUD_ADMIN_PASSWORD: secret
       NEXTCLOUD_TRUSTED_DOMAINS: example.com
@@ -80,14 +80,17 @@ services:
       # SMTP_PASSWORD:
       PREVIEW_MAX: '1024'
       INSTALL_APPS: 'breezedark richdocuments files_ebookreader'
-    volumes:
-      - ~/docker/nextcloud:/var/www/html
+      OVERWIRTE_PROTOCOL: http
+    # volumes:
+    #   - ~/docker/nextcloud:/var/www/html
     ports:
       - 8000:80 # nextcloud port, listening on localhost:8000
     networks:
       - default
     depends_on:
-      - postgres
+      # - postgres
+      - mariadb
+      - redis
 
   # collabora:
   #   container_name: collabora
