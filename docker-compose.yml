@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   redis:
     container_name: redis
@@ -64,7 +64,7 @@ services:
       MYSQL_USER: nextcloud
       NEXTCLOUD_ADMIN_USER: user
       NEXTCLOUD_ADMIN_PASSWORD: secret
-      NEXTCLOUD_TRUSTED_DOMAINS: example.com
+      NEXTCLOUD_TRUSTED_DOMAINS: nc.example.com
       REDIS_HOST: redis
       REDIS_HOST_PASSWORD: secret
       REDIS_HOST_PORT: 6379
@@ -78,8 +78,8 @@ services:
       IMAP_AUTH_DOMAIN: example.com
       IMAP_AUTH_SERVER: mail.example.com
       # SMTP_PASSWORD:
-      PREVIEW_MAX: '1024'
-      INSTALL_APPS: 'breezedark richdocuments files_ebookreader'
+      PREVIEW_MAX: "1024"
+      INSTALL_APPS: "breezedark richdocuments files_ebookreader"
       OVERWIRTE_PROTOCOL: http
     # volumes:
     #   - ~/docker/nextcloud:/var/www/html
@@ -104,3 +104,97 @@ services:
   #     - 9980:9980 # collabora port
   #   networks:
   #     - default
+
+  # spreedbackend:
+  #   container_name: nc-spreedbackend
+  #   image: strukturag/nextcloud-spreed-signaling:latest
+  #   # volumes:
+  #   #   - ./server.conf:/config/server.conf
+  #   network_mode: host
+  #   restart: unless-stopped
+  #   environment:
+  #     - HTTP_LISTEN=0.0.0.0:8080
+  #     # - BACKENDS_ALLOWALL=true
+  #     # - BACKENDS_ALLOWALL_SECRET=secret
+  #     - BACKENDS=test
+  #     - BACKEND_TEST_URL=http://nc.example.com
+  #     - BACKEND_TEST_SHARED_SECRET=secret
+  #     # - NATS_URL=192.168.178.43
+  #     # - USE_JANUS=1
+  #     # - JANUS_URL=192.168.178.43
+  #     - TURN_SECRET=super-secret
+  #     - TURN_SERVER=192.168.178.43:3478
+  #     - SKIP_VERIFY=true
+  #   depends_on:
+  #     # - nats
+  #     # - janus
+  #     - coturn
+  #     - nextcloud
+  # # nats:
+  # #   image: nats:latest
+  # #   volumes:
+  # #     - ./gnatsd.conf:/config/gnatsd.conf
+  # #   command: ["-c", "/config/gnatsd.conf"]
+  # #   network_mode: host
+  # #   restart: unless-stopped
+  # # janus:
+  # #   image: canyan/janus-gateway:latest
+  # #   command: ["janus", "--full-trickle"]
+  # #   network_mode: host
+  # #   restart: unless-stopped
+
+  # coturn:
+  #   container_name: nc-coturn
+  #   image: coturn/coturn:latest
+  #   # network_mode: host
+  #   ports:
+  #     - 8188:8080
+  #     - 3478:3478
+  #     - 5349:5349
+  #   #
+  #   # Update command parameters as necessary.
+  #   #
+  #   # See https://github.com/coturn/coturn/blob/master/README.turnserver for
+  #   # available options.
+  #   command:
+  #     - "--realm"
+  #     - "bits-cloud.de"
+  #     - "--static-auth-secret"
+  #     - "test"
+  #     - "--no-stdout-log"
+  #     - "--log-file"
+  #     - "stdout"
+  #     - "--stale-nonce=600"
+  #     - "--use-auth-secret"
+  #     - "--lt-cred-mech"
+  #     - "--fingerprint"
+  #     - "--no-software-attribute"
+  #     - "--no-multicast-peers"
+  #     - "--web-admin"
+  #     - "--web-admin-port=8080"
+  #   restart: unless-stopped
+
+  # # coturn2:
+  # #   container_name: nc-coturn-2
+  # #   image: coturn/coturn:latest
+  # #   network_mode: host
+  # #   #
+  # #   # Update command parameters as necessary.
+  # #   #
+  # #   # See https://github.com/coturn/coturn/blob/master/README.turnserver for
+  # #   # available options.
+  # #   command:
+  # #     - "--realm"
+  # #     - "example.com"
+  # #     - "--static-auth-secret"
+  # #     - "super-secret"
+  # #     - "--no-stdout-log"
+  # #     - "--log-file"
+  # #     - "stdout"
+  # #     - "--stale-nonce=600"
+  # #     - "--use-auth-secret"
+  # #     - "--lt-cred-mech"
+  # #     - "--fingerprint"
+  # #     - "--no-software-attribute"
+  # #     - "--no-multicast-peers"
+  # #   restart: unless-stopped
