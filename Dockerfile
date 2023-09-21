@@ -1,9 +1,10 @@
-FROM nextcloud:27.0.2
+FROM nextcloud:26.0.6
 RUN set -ex; \
   \
   apt-get update; \
   apt-get install -y --no-install-recommends \
   ffmpeg \
+  ghostscript \
   libmagickcore-6.q16-6-extra \
   procps \
   smbclient \
@@ -39,9 +40,9 @@ RUN set -ex; \
   apt-mark auto '.*' > /dev/null; \
   apt-mark manual $savedAptMark; \
   ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
-  | awk '/=>/ { print $3 }' \
+  | awk '/=>/ { so = $(NF-1); if (index(so, "/usr/local/") == 1) { next }; gsub("^/(usr/)?", "", so); print so }' \    
   | sort -u \
-  | xargs -r dpkg-query -S \
+  | xargs -r dpkg-query --search \
   | cut -d: -f1 \
   | sort -u \
   | xargs -rt apt-mark manual; \
@@ -49,8 +50,10 @@ RUN set -ex; \
   apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
   rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /var/log/supervisord;
-RUN mkdir -p /var/run/supervisord;
+RUN mkdir -p \
+  /var/log/supervisord \
+  /var/run/supervisord \
+  ;
 
 COPY supervisord.conf /etc
 
